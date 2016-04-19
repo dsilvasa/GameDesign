@@ -17,12 +17,14 @@ public class flag : NetworkBehaviour {
     bool drop;
     Base Base2;
     // Use this for initialization
-    void Start() { 
+    void Start()
+    {
 
-
-spawn();
+        if (isServer)
+        {
+            spawn();
+        }
     }
-
     // Update is called once per frame
     void Update()
     {
@@ -96,19 +98,23 @@ spawn();
     }
     void OnCollisonEnter(Collision c)
     {
-        if (c.gameObject.tag == "player")
+        if (isServer)
         {
-            Player pla2 = c.gameObject.GetComponent<Player>();
-            flag2.transform.parent=pla2.P2.transform;
-            OnPlayer = true;
+            if (c.gameObject.tag == "player")
+            {
+                Player pla2 = c.gameObject.GetComponent<Player>();
+                flag2.transform.parent = pla2.P2.transform;
+                OnPlayer = true;
+            }
+            else if (c.gameObject.tag == "base")
+            {
+                flaginb = true;
+                Base pla2 = c.gameObject.GetComponent<Base>();
+                flag2.transform.parent = Base2.B2.transform;
+                Base2.inBase();
+            }
         }
-        else if (c.gameObject.tag == "base")
-        {
-            flaginb = true;
-            Base pla2 = c.gameObject.GetComponent<Base>();
-            flag2.transform.parent= Base2.B2.transform ;
-            Base2.inBase();
-        }
+    
         //on colistion check to see if player if player set on player to true then make flag a subcatagrio of the player
     }
 }

@@ -34,17 +34,20 @@ public class Base : NetworkBehaviour
         Player pla2 = c.gameObject.GetComponent<Player>();
         if (c.gameObject.tag == "player")
         {
-            if (vor == true)
+            if (isServer)
             {
-                if (pla2.Team != Team)
+                if (vor == true)
                 {
-                    takeDamage(pla2, HP);
+                    if (pla2.Team != Team)
+                    {
+                        takeDamage(pla2, HP);
+                    }
+
                 }
 
             }
 
+            //on colistion check to see if player if player set on player to true then make flag a subcatagrio of the player
         }
-
-        //on colistion check to see if player if player set on player to true then make flag a subcatagrio of the player
     }
 }

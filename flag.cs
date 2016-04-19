@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.Networking;
 
-public class flag : NetworkBehaviour
-{
+
+public class flag : NetworkBehaviour { 
     bool flaginb;
     GameObject flag2;
     bool OnPlayer;
@@ -95,18 +96,18 @@ spawn();
     }
     void OnCollisonEnter(Collision c)
     {
-        if (gameObject.tag == "player")
+        if (c.gameObject.tag == "player")
         {
             Player pla2 = c.gameObject.GetComponent<Player>();
             flag2.transform.parent=pla2.P2.transform;
             OnPlayer = true;
         }
-        else if (gameObject.tag == "base")
+        else if (c.gameObject.tag == "base")
         {
             flaginb = true;
             Base pla2 = c.gameObject.GetComponent<Base>();
             flag2.transform.parent= Base2.B2.transform ;
-            Base2.flagin();
+            Base2.inBase();
         }
         //on colistion check to see if player if player set on player to true then make flag a subcatagrio of the player
     }

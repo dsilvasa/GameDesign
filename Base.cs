@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using UnityEngine.Networking;
 public class Base : NetworkBehaviour
 {
     public GameObject B2;
     int HP = 1000;
-    bool vor = true;
+    bool vor = false;
     public char Team;
+    bool inbase2;
 
     // Use this for initialization
     void Start()
@@ -19,7 +20,10 @@ public class Base : NetworkBehaviour
     {
 
     }
-   
+  public void inBase()
+    {
+       vor = true;
+    }
 
     void takeDamage(Player play, int HP)
     {

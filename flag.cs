@@ -4,18 +4,30 @@ using System;
 using UnityEngine.Networking;
 
 
-public class flag : NetworkBehaviour { 
+public class flag : NetworkBehaviour {
+    [SyncVar]
     bool flaginb;
+    [SyncVar]
     GameObject flag2;
+    [SyncVar]
     bool OnPlayer;
+    [SyncVar]
     bool spawntrue;
+    [SyncVar]
     float timer = 10f;
+    [SyncVar]
     Vector3 postion;
+    [SyncVar]
     GameObject flagz;
+    [SyncVar]
     Player Player;
+    [SyncVar]
     float cont = 0f;
+    [SyncVar]
     bool drop;
+    [SyncVar]
     Base Base2;
+
     // Use this for initialization
     void Start()
     {
@@ -42,43 +54,34 @@ public class flag : NetworkBehaviour {
     void spawn()
     {
         UnityEngine.Random ran = new UnityEngine.Random();
-        int red = UnityEngine.Random.Range(0, 6);
+        int red = UnityEngine.Random.Range(0, 4);
         if (red == 0)
         {
-            postion = new Vector3();
+            postion = new Vector3(56087f,-1.04f);
             Instantiate(flagz, postion, Quaternion.identity);
         }
         else if (red == 1)
         {
-            postion = new Vector3();
+            postion = new Vector3(260f,-0.99f);
             Instantiate(flagz, postion, Quaternion.identity);
 
         }
         else if (red == 2)
         {
-            postion = new Vector3();
+            postion = new Vector3(497.69f,-0.81f);
             Instantiate(flagz, postion, Quaternion.identity);
         }
         else if (red == 3)
         {
-            postion = new Vector3();
+            postion = new Vector3(447.52f,-1.2f);
             Instantiate(flagz, postion, Quaternion.identity);
         }
         else if (red == 4)
         {
-            postion = new Vector3();
+            postion = new Vector3(89.038f,-.88f);
             Instantiate(flagz, postion, Quaternion.identity);
         }
-        else if (red == 5)
-        {
-            postion = new Vector3();
-            Instantiate(flagz, postion, Quaternion.identity);
-        }
-        else if (red == 6)
-        {
-            postion = new Vector3();
-            Instantiate(flagz, postion, Quaternion.identity);
-        }
+      
 
 
     }

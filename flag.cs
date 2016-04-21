@@ -10,7 +10,7 @@ public class flag : NetworkBehaviour {
     [SyncVar]
     GameObject flag2;
     [SyncVar]
-    bool OnPlayer;
+    bool OnController;
     [SyncVar]
     bool spawntrue;
     [SyncVar]
@@ -20,12 +20,9 @@ public class flag : NetworkBehaviour {
     [SyncVar]
     GameObject flagz;
     [SyncVar]
-    Player Player;
-    [SyncVar]
     float cont = 0f;
     [SyncVar]
     bool drop;
-    [SyncVar]
     Base Base2;
 
     // Use this for initialization
@@ -89,25 +86,25 @@ public class flag : NetworkBehaviour {
 
 
 
-    bool drop2( bool Onplayer, bool drop)
+    bool drop2( bool OnController, bool drop)
     {
         drop = true;
-        OnPlayer = false;
+        OnController = false;
         return drop;
     }
-    void onBase()
-    {
+ //   void onBase()
+   // {
 
-    }
+   // }
     void OnCollisonEnter(Collision c)
     {
         if (isServer)
         {
-            if (c.gameObject.tag == "player")
+            if (c.gameObject.tag == "Controller")
             {
-                Player pla2 = c.gameObject.GetComponent<Player>();
-                flag2.transform.parent = pla2.P2.transform;
-                OnPlayer = true;
+                Controller pla2 = c.gameObject.GetComponent<Controller>();
+                flag2.transform.parent = pla2.p2.transform;
+                OnController = true;
             }
             else if (c.gameObject.tag == "base")
             {
@@ -118,6 +115,6 @@ public class flag : NetworkBehaviour {
             }
         }
     
-        //on colistion check to see if player if player set on player to true then make flag a subcatagrio of the player
+        //on colistion check to see if Controller if Controller set on Controller to true then make flag a subcatagrio of the Controller
     }
 }

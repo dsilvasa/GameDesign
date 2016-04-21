@@ -3,27 +3,36 @@ using System.Collections;
 using UnityEngine.Networking;
 
 public class Controller : NetworkBehaviour {
+	//movement
 	public Rigidbody myRig;
 	public GameObject cam;
 	public float speed = 2;
 	public Vector3 dir = new Vector3();
-	public bool canattack;
-	public bool hasflag;
-	// public int health;
-	public char Team;
-	public int damage;
-	private bool hasitem;
-	private bool Defence;
+	public float speedH = 2.0f;
+	public float speedV = 2.0f;
+	private float yaw = 0.0f;
+	private float pitch = 0.0f;
 	private int Distance;
-	public bool turn;
-	public float mp = 100;
-	public float maxmp = 100;
-
-	public float Attackcool;
 	public Vector3 lastPostion;
-	private float itemcool;
+	// public int health;
+	//stamina
 	private float regain = 5;
 	public float constant;
+	public float mp = 100;
+	public float maxmp = 100;
+	// attack
+	public float Attackcool;
+	public bool canattack;
+	public int damage;
+	private bool Defence;
+	//flag/team
+	public bool hasflag;
+	public char Team;
+	public bool turn;
+	//item
+	private float itemcool;
+	private bool hasitem;
+	public GameObject p2;
 	// Use this for initialization
 
 
@@ -34,6 +43,8 @@ public class Controller : NetworkBehaviour {
 	public int maxHealth = 5;
 
 	void Start () {
+		
+		cam = GameObject.Find ("Main Camera");
 		myRig = this.gameObject.GetComponent<Rigidbody>();
 		dir = Vector3.zero;
 	}
@@ -121,12 +132,19 @@ public class Controller : NetworkBehaviour {
 		float xmove = Input. GetAxisRaw("Horizontal");
 		float ymove = Input.GetAxisRaw("Vertical");
 		CmdSetDirection(xmove, ymove);
-		cam.transform.position = new Vector3 (this.myRig.position.x, cam.transform.position.y, this.myRig.position.z);
+		yaw += speedH * Input.GetAxis("Mouse X");
+		pitch -= speedV * Input.GetAxis("Mouse Y");
+		myRig.transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
+		cam.transform.position = new Vector3 (this.myRig.position.x, this.myRig.position.y, this.myRig.position.z);
+		cam.transform.rotation = this.transform.rotation;
 		// update hud
-		if(myRig.position== lastPostion && canattack == false )
+		if(myRig.position== lastPostion && canattack == false && mp < maxmp)
 		{
 
 			mp += regain - 1 * (mp / maxmp) * constant;
+			if (mp > maxmp) {
+				mp = maxmp;
+			}
 		}
 		lastPostion = myRig.position;
 		Attackcool += 0.5f;
@@ -139,9 +157,9 @@ public class Controller : NetworkBehaviour {
 
 	}
 	[Command]
-	public void CmdSetDirection(float x, float y)
+	public void CmdSetDirection(float x, float z)
 	{
-		dir = new Vector3(x,0,y);
+		dir = transform.forward * z + transform.right * x;
 
 	}
 

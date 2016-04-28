@@ -11,8 +11,9 @@ public class Controller : NetworkBehaviour {
 	public float speedH = 2.0f;
 	public float speedV = 2.0f;
 	private float yaw = 0.0f;
-	private float pitch = 0.0f;
-	private int Distance;
+	public bool canmove = true;
+	//private float pitch = 0.0f;
+	private float Distance;
 	public Vector3 lastPostion;
 	// public int health;
 	//stamina
@@ -22,8 +23,8 @@ public class Controller : NetworkBehaviour {
 	public float maxmp = 100;
 	// attack
 	public float Attackcool;
-	public bool canattack;
-	public int damage;
+	public bool canattack = true;
+	public int damage = 5;
 	private bool Defence;
 	//flag/team
 	public bool hasflag;
@@ -38,12 +39,12 @@ public class Controller : NetworkBehaviour {
 
 
 	[SyncVar]
-	public int health = 5;
+	public int health = 20;
 	[SyncVar]
-	public int maxHealth = 5;
+	public int maxHealth = 20;
 
 	void Start () {
-		
+
 		cam = GameObject.Find ("Main Camera");
 		myRig = this.gameObject.GetComponent<Rigidbody>();
 		dir = Vector3.zero;
@@ -102,67 +103,115 @@ public class Controller : NetworkBehaviour {
 	//   return
 	//} 
 
-	void OnCollisionEnter2D(Collision2D coll)
-	{ if (isServer)
+	void OnCollisionEnter(Collision coll)
+	{ 		
+		Debug.Log ("you hit me");
+		
+
+		if (isServer)
 		{
-			if (coll.gameObject.tag == "player")
+			if (coll.gameObject.tag == "Player")
 			{
 				Controller pla2 = coll.gameObject.GetComponent<Controller>();
-				if (turn == true)
+				canattack = Canattack(pla2, Team,canattack,Attackcool,mp);
+				if (canattack == true)
 				{
-					canattack = Canattack(pla2, Team,canattack,Attackcool,mp);
-					if (canattack == true)
-					{
-						Attackcool -= 5;
-						mp -= 15;
-						attack(damage, pla2); // have it set to is sever
-						canattack = false;
-						pla2.attack(pla2.damage, this);
-
-					}
+					Attackcool += 10;
+					mp -= 15;
+					attack(damage, pla2); // have it set to is sever
+					canattack = false;
+					pla2.attack(pla2.damage, this);
 				}
-
 			}
 		}
+
+//		if (isClient)
+//		{
+//			if (coll.gameObject.tag == "Player")
+//			{
+//				Controller pla2 = coll.gameObject.GetComponent<Controller>();
+//				canattack = Canattack(pla2, Team,canattack,Attackcool,mp);
+//				if (canattack == true)
+//				{
+//					Attackcool += 10;
+//					mp -= 15;
+//					attack(damage, pla2); // have it set to is sever
+//					canattack = false;
+//					pla2.attack(pla2.damage, this);
+//				}
+//			}
+//		}
 	}
 
 
 	void ClientUpdate()
 	{
-		float xmove = Input. GetAxisRaw("Horizontal");
-		float ymove = Input.GetAxisRaw("Vertical");
-		CmdSetDirection(xmove, ymove);
-		yaw += speedH * Input.GetAxis("Mouse X");
-		pitch -= speedV * Input.GetAxis("Mouse Y");
-		myRig.transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
-		cam.transform.position = new Vector3 (this.myRig.position.x, this.myRig.position.y, this.myRig.position.z);
-		cam.transform.rotation = this.transform.rotation;
-		// update hud
-		if(myRig.position== lastPostion && canattack == false && mp < maxmp)
-		{
+		Cursor.lockState = CursorLockMode.Locked;
 
+		// update hud
+		if (isLocalPlayer) 
+		{
+			if (mp > 0) {
+				float xmove = Input.GetAxisRaw ("Horizontal");
+				float ymove = Input.GetAxisRaw ("Vertical");
+				yaw += speedH * Input.GetAxis ("Mouse X");
+				cam.transform.rotation = this.myRig.rotation;
+				cam.transform.position = new Vector3 (this.myRig.position.x, this.myRig.position.y, this.myRig.position.z);
+				CmdSetDirection (xmove, ymove, yaw);
+				Cmdstamina (myRig.position, lastPostion);
+				lastPostion = myRig.position;
+				if (Attackcool > 0) {
+					Attackcool -= 0.5f;
+				} else {
+					canattack = true;
+				}
+			} 
+			else {
+				lastPostion = myRig.position;
+				Cmdstamina (myRig.position, lastPostion);
+			}
+				
+
+		}
+	}
+	[Server]
+	void ServerUpdate(){
+		if (mp > 0) {
+			myRig.velocity = dir * 10;
+		}
+		else {
+			myRig.velocity = dir *0;
+			Cmdstamina (myRig.position, lastPostion);
+
+		}
+	}
+	[Command]
+	public void CmdSetDirection(float x, float z, float yaw)
+	{
+		dir = transform.forward * z + transform.right * x;
+		myRig.transform.eulerAngles = new Vector3(0.0f, yaw, 0.0f);
+
+	}
+
+	[Command]
+	public void Cmdstamina(Vector3 x, Vector3 y)
+	{
+
+		Distance = Vector3.Distance (x, y);
+		Debug.Log (Distance);
+
+		mp = mp - Distance * 4;
+		if (mp <= 0) {
+			canmove = false;
+		} else {
+			canmove = true;
+		}
+		if (x == y && canattack == false && mp < maxmp) {
 			mp += regain - 1 * (mp / maxmp) * constant;
 			if (mp > maxmp) {
 				mp = maxmp;
 			}
 		}
-		lastPostion = myRig.position;
-		Attackcool += 0.5f;
-
 	}
-	[Server]
-	void ServerUpdate(){
-
-		myRig.velocity = dir*3;
-
-	}
-	[Command]
-	public void CmdSetDirection(float x, float z)
-	{
-		dir = transform.forward * z + transform.right * x;
-
-	}
-
-
 
 }

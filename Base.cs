@@ -18,11 +18,17 @@ public class Base : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (isServer)
+        {
+            if (vor == true)
+            {
+                HP -= 5;
+            }
+        }
     }
-  public void inBase()
+    public void inBase()
     {
-       vor = true;
+        vor = true;
     }
 
     void takeDamage(Controller play, int HP)

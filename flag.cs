@@ -4,11 +4,12 @@ using System;
 using UnityEngine.Networking;
 
 
-public class flag : NetworkBehaviour {
+public class flag : NetworkBehaviour
+{
     [SyncVar]
     bool flaginb;
-    [SyncVar]
-    GameObject flag2;
+    
+
     [SyncVar]
     bool OnController;
     [SyncVar]
@@ -18,103 +19,106 @@ public class flag : NetworkBehaviour {
     [SyncVar]
     Vector3 postion;
     [SyncVar]
-    GameObject flagz;
+    public  GameObject flagz;
     [SyncVar]
     float cont = 0f;
     [SyncVar]
     bool drop;
     Base Base2;
-
+    bool spaz;
+    public GameObject o1;
+    public GameObject o0;
+    public GameObject o2;
+    public GameObject o3;
+    public GameObject o4;
+    public GameObject o5;
+    int count;
     // Use this for initialization
+
     void Start()
     {
 
-        if (isServer)
-        {
-            spawn();
-        }
     }
+    
     // Update is called once per frame
     void Update()
-    {
+    {  if (isServer)
+        {
         if (drop == true)
         {
             cont += .5f;
             if (cont == 5f)
             {
-                //Destroy(this);
-                this.spawn();
+                    spawnfl spawn = new spawnfl();
+                    spawn.spawn();
+                Destroy(this);
+                
                 drop = false;
             }
         }
-    }
-    void spawn()
-    {
-        UnityEngine.Random ran = new UnityEngine.Random();
-        int red = UnityEngine.Random.Range(0, 4);
-        if (red == 0)
-        {
-            postion = new Vector3(56087f,-1.04f);
-            Instantiate(flagz, postion, Quaternion.identity);
-        }
-        else if (red == 1)
-        {
-            postion = new Vector3(260f,-0.99f);
-            Instantiate(flagz, postion, Quaternion.identity);
-
-        }
-        else if (red == 2)
-        {
-            postion = new Vector3(497.69f,-0.81f);
-            Instantiate(flagz, postion, Quaternion.identity);
-        }
-        else if (red == 3)
-        {
-            postion = new Vector3(447.52f,-1.2f);
-            Instantiate(flagz, postion, Quaternion.identity);
-        }
-        else if (red == 4)
-        {
-            postion = new Vector3(89.038f,-.88f);
-            Instantiate(flagz, postion, Quaternion.identity);
-        }
       
-
-
+            if (OnController == true)
+            { 
+                this.transform.localPosition = new Vector3(0, 1, 0);
+                // networktransform
+            }
+        }
     }
 
 
+   
 
 
-    bool drop2( bool OnController, bool drop)
+    public  bool drop2()
     {
         drop = true;
         OnController = false;
+        
+
         return drop;
     }
- //   void onBase()
-   // {
+    //   void onBase()
+    // {
 
-   // }
-    void OnCollisonEnter(Collision c)
+    // }
+    public void OnTriggerEnter(Collider c)
     {
+        Debug.Log("piss");
         if (isServer)
         {
-            if (c.gameObject.tag == "Controller")
+            Debug.Log("it hit the ball on the sevver");
+
+            if (c.CompareTag("bB"))
             {
+                if (OnController == false) { 
+                Vector3 pla = new Vector3(0f, 4f, 0f);
                 Controller pla2 = c.gameObject.GetComponent<Controller>();
-                flag2.transform.parent = pla2.p2.transform;
+                //Vector3 tyk = pla2.transform.position + pla;
+
+   
+                
+                
+                
+                
+               
+                //flagz.transform.parent = pla2.p2.transform;
+                //flagz.transform.position = tyk;
+                flagz.transform.parent = pla2.p2.transform;
+                flagz.transform.localPosition = Vector3.zero;
                 OnController = true;
+                }
+               
             }
             else if (c.gameObject.tag == "base")
             {
                 flaginb = true;
                 Base pla2 = c.gameObject.GetComponent<Base>();
-                flag2.transform.parent = Base2.B2.transform;
+                flagz.transform.parent = Base2.B2.transform;
+
                 Base2.inBase();
             }
         }
-    
+
         //on colistion check to see if Controller if Controller set on Controller to true then make flag a subcatagrio of the Controller
     }
 }

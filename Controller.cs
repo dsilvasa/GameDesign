@@ -11,6 +11,7 @@ public class Controller : NetworkBehaviour {
 	public float speedH = 2.0f;
 	public float speedV = 2.0f;
 	private float yaw = 0.0f;
+	private float yee = 0.0f;
 	public bool canmove = true;
 	//private float pitch = 0.0f;
 	private float Distance;
@@ -19,9 +20,9 @@ public class Controller : NetworkBehaviour {
 	private float regain = 5;
 	public float constant;
 	[SyncVar]
-	public double mp = 100;
+	public float mp = 100;
 	[SyncVar]
-	public double maxmp = 100;
+	public float maxmp = 100;
 	// attack
 	public float Attackcool;
 	public bool canattack = true;
@@ -36,8 +37,7 @@ public class Controller : NetworkBehaviour {
 	private bool hasitem;
 	public GameObject p2;
 	// Use this for initialization
-	public Texture2D emptyTex;
-	public Texture2D fullTex;
+
 
 
 	[SyncVar]
@@ -59,24 +59,12 @@ public class Controller : NetworkBehaviour {
 	}
 	void OnGUI() {
 		if (isLocalPlayer) {
-			//draw the background:
-			GUI.BeginGroup (new Rect (1, 1, 10* maxHealth, 10));
-			GUI.Box (new Rect (0, 0, 100, 100), emptyTex);
+//		
 
-			//draw the filled-in part:
-			GUI.BeginGroup (new Rect (0, 0, 10 * health, 10));
-			GUI.Box (new Rect (0, 0, 100, 100), fullTex);
-			GUI.EndGroup ();
-			GUI.EndGroup ();
+			GUI.Label(new Rect(1,1,200,200), "Stamina "+ mp.ToString() +"/"+maxmp);
+			GUI.Label(new Rect(300,1,200,200), "Health "+ health.ToString() +"/"+maxHealth);
+			GUI.Label(new Rect(400,1,200,200), "Attack Cool Down "+ Attackcool.ToString() +" Seconds");
 
-			GUI.BeginGroup (new Rect (1, 1, 10* maxmp, 10));
-			GUI.Box (new Rect (0, 0, 100, 100), emptyTex);
-
-			//draw the filled-in part:
-			GUI.BeginGroup (new Rect (0, 0, 10 * mp, 10));
-			GUI.Box (new Rect (0, 0, 100, 100), fullTex);
-			GUI.EndGroup ();
-			GUI.EndGroup ();
 
 
 		}
@@ -190,6 +178,7 @@ public class Controller : NetworkBehaviour {
 				float xmove = Input.GetAxisRaw ("Horizontal");
 				float ymove = Input.GetAxisRaw ("Vertical");
 				yaw += speedH * Input.GetAxis ("Mouse X");
+				yee += speedH * Input.GetAxis ("Mouse Y");
 				cam.transform.rotation = this.myRig.rotation;
 				cam.transform.position = new Vector3 (this.myRig.position.x, this.myRig.position.y, this.myRig.position.z);
 				CmdSetDirection (xmove, ymove, yaw);
@@ -241,8 +230,7 @@ public class Controller : NetworkBehaviour {
 		Distance = Vector3.Distance (x, y);
 		Debug.Log (Distance);
 		int round = Mathf.CeilToInt (Distance);
-
-		mp = mp - round/1.5;
+		mp = mp - Mathf.CeilToInt(round / (float)1.5);
 		if (mp <= 0) {
 			canmove = false;
 		} else {
@@ -250,7 +238,8 @@ public class Controller : NetworkBehaviour {
 		}
 		if (x == y && mp < maxmp) {
 			mp += regain - 1 * (mp / maxmp) * constant;
-			if (mp > maxmp) {
+			if (mp > maxmp) 
+			{
 				mp = maxmp;
 			}
 		}

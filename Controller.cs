@@ -15,12 +15,13 @@ public class Controller : NetworkBehaviour {
 	//private float pitch = 0.0f;
 	private float Distance;
 	public Vector3 lastPostion;
-	// public int health;
 	//stamina
 	private float regain = 5;
 	public float constant;
-	public float mp = 100;
-	public float maxmp = 100;
+	[SyncVar]
+	public double mp = 100;
+	[SyncVar]
+	public double maxmp = 100;
 	// attack
 	public float Attackcool;
 	public bool canattack = true;
@@ -35,7 +36,8 @@ public class Controller : NetworkBehaviour {
 	private bool hasitem;
 	public GameObject p2;
 	// Use this for initialization
-
+	public Texture2D emptyTex;
+	public Texture2D fullTex;
 
 
 	[SyncVar]
@@ -55,7 +57,30 @@ public class Controller : NetworkBehaviour {
 	{
 		myRig.velocity = new Vector3(x, y, 0) * speed;
 	}
+	void OnGUI() {
+		if (isLocalPlayer) {
+			//draw the background:
+			GUI.BeginGroup (new Rect (1, 1, 10* maxHealth, 10));
+			GUI.Box (new Rect (0, 0, 100, 100), emptyTex);
 
+			//draw the filled-in part:
+			GUI.BeginGroup (new Rect (0, 0, 10 * health, 10));
+			GUI.Box (new Rect (0, 0, 100, 100), fullTex);
+			GUI.EndGroup ();
+			GUI.EndGroup ();
+
+			GUI.BeginGroup (new Rect (1, 1, 10* maxmp, 10));
+			GUI.Box (new Rect (0, 0, 100, 100), emptyTex);
+
+			//draw the filled-in part:
+			GUI.BeginGroup (new Rect (0, 0, 10 * mp, 10));
+			GUI.Box (new Rect (0, 0, 100, 100), fullTex);
+			GUI.EndGroup ();
+			GUI.EndGroup ();
+
+
+		}
+	}
 
 	// Update is called once per frame
 	void Update()
@@ -69,6 +94,16 @@ public class Controller : NetworkBehaviour {
 		{
 			ClientUpdate();
 		}
+		if (this.health == 0)
+		{
+			//flag red = this.transform.GetComponent<flag>;
+			if (this.transform.GetChildCount() > 0)
+			{
+				this.transform.GetChild(0).gameObject.GetComponent<flag>().drop2();
+			}
+			this.transform.DetachChildren();
+			Destroy(this);
+		}
 
 	}
 
@@ -81,7 +116,7 @@ public class Controller : NetworkBehaviour {
 
 
 	}
-	private static bool  Canattack(Controller pl2,char team,bool canattack,float Attackcool, float mp) {
+	private static bool  Canattack(Controller pl2,char team,bool canattack,float Attackcool, double mp) {
 
 
 
@@ -162,7 +197,8 @@ public class Controller : NetworkBehaviour {
 				lastPostion = myRig.position;
 				if (Attackcool > 0) {
 					Attackcool -= 0.5f;
-				} else {
+				} 
+				else {
 					canattack = true;
 				}
 			} 
@@ -180,7 +216,7 @@ public class Controller : NetworkBehaviour {
 			myRig.velocity = dir * 10;
 		}
 		else {
-			myRig.velocity = dir *0;
+			myRig.velocity = dir * 0;
 			Cmdstamina (myRig.position, lastPostion);
 
 		}
@@ -188,7 +224,12 @@ public class Controller : NetworkBehaviour {
 	[Command]
 	public void CmdSetDirection(float x, float z, float yaw)
 	{
-		dir = transform.forward * z + transform.right * x;
+		if (z != 0 || x != 0) {
+			dir = transform.forward * z + transform.right * x + transform.up;
+		} else {
+			dir = transform.forward * z + transform.right * x + transform.up * 0;
+		}
+
 		myRig.transform.eulerAngles = new Vector3(0.0f, yaw, 0.0f);
 
 	}
@@ -199,14 +240,15 @@ public class Controller : NetworkBehaviour {
 
 		Distance = Vector3.Distance (x, y);
 		Debug.Log (Distance);
+		int round = Mathf.CeilToInt (Distance);
 
-		mp = mp - Distance * 4;
+		mp = mp - round/1.5;
 		if (mp <= 0) {
 			canmove = false;
 		} else {
 			canmove = true;
 		}
-		if (x == y && canattack == false && mp < maxmp) {
+		if (x == y && mp < maxmp) {
 			mp += regain - 1 * (mp / maxmp) * constant;
 			if (mp > maxmp) {
 				mp = maxmp;
